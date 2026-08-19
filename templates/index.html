@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Cache-Control" content="no-store">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Promoter pledges</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0e0e0e;
+      --ink: #eeeae3;
+      --muted: #8c8880;
+      --rule: rgba(238, 234, 227, 0.12);
+      --accent: #e10600;
+      --up: #8fad7e;
+      --down: #e07a7a;
+    }
+    * { box-sizing: border-box }
+    html { background: var(--bg) }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: "Inter Tight", "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.45;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap {
+      width: min(1100px, calc(100% - 56px));
+      margin: 0 auto;
+      padding: 32px 0 88px;
+    }
+    .mast {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .angle {
+      width: 11px;
+      height: 11px;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    h1 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+    }
+    .mast-note {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .sources {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 8px 28px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .sources span { color: var(--ink); font-weight: 500 }
+    .hero {
+      padding: 36px 0 12px;
+    }
+    .bar {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px 36px;
+    }
+    .bar-main {
+      display: flex;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 20px 36px;
+    }
+    #invokeBtn { margin-left: auto }
+    .thresh { width: 160px }
+    .thresh input { width: 100% }
+    .stats {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      min-height: 1em;
+    }
+    .stat-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 32px;
+    }
+    .stat-rule {
+      width: 1px;
+      align-self: stretch;
+      background: var(--rule);
+      margin: 2px 4px;
+    }
+    .stat-note {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: left;
+      line-height: 1.45;
+    }
+    .stat {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.35;
+      max-width: 8.2em;
+    }
+    .stat b {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--ink);
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      font-variant-numeric: tabular-nums;
+    }
+    button {
+      appearance: none;
+      background: none;
+      border: 0;
+      padding: 0 0 4px;
+      margin: 0;
+      color: var(--ink);
+      font: inherit;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      border-bottom: 1px solid var(--accent);
+    }
+    button:hover:not(:disabled) { color: var(--accent) }
+    button:disabled { opacity: 0.35; cursor: not-allowed }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.04em;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px 0;
+      border: 0;
+      border-bottom: 1px solid var(--rule);
+      border-radius: 0;
+      background: transparent;
+      color: var(--ink);
+      font: inherit;
+    }
+    select option { color: #1c1b19; background: #eeeae3 }
+    input:focus, select:focus {
+      outline: none;
+      border-bottom-color: var(--ink);
+    }
+    .pick { display: none; gap: 32px; flex-wrap: wrap; margin-top: 40px }
+    .pick.show { display: flex }
+    .invoke-panel { display: none; margin-top: 40px }
+    .invoke-panel.show { display: block }
+    button.co-link {
+      border-bottom-color: var(--rule);
+      font-size: 13px;
+      font-weight: 500;
+    }
+    button.co-link:hover:not(:disabled) { border-bottom-color: var(--accent) }
+    .pick .field { flex: 1; min-width: 180px }
+    .hint { color: var(--muted); font-size: 12px; margin: 12px 0 0 }
+    .err { color: var(--down); font-size: 13px; margin-top: 12px }
+    .spinner {
+      display: inline-block;
+      width: 11px;
+      height: 11px;
+      margin-right: 8px;
+      border: 1.5px solid var(--rule);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      vertical-align: -1px;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg) } }
+    .card {
+      padding: 40px 0 4px;
+      margin: 12px 0 0;
+      border-top: 1px solid var(--rule);
+      background: none;
+    }
+    .kicker {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .kicker b {
+      color: var(--accent);
+      font-weight: 500;
+      margin-right: 10px;
+    }
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+    .head-actions {
+      display: flex;
+      align-items: baseline;
+      gap: 20px;
+      flex-shrink: 0;
+    }
+    .section-head h2,
+    .card > h2 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+    }
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 20px 28px;
+      margin: 24px 0 32px;
+      padding: 20px 0;
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+    }
+    .meta .k { color: var(--muted); font-size: 11px }
+    .meta .v {
+      margin-top: 4px;
+      font-size: 15px;
+      font-weight: 500;
+      word-break: break-word;
+    }
+    .promoter {
+      margin-top: 32px;
+      padding-top: 28px;
+      border-top: 1px solid var(--rule);
+    }
+    .promoter h3 {
+      margin: 0 0 14px;
+      font-size: 16px;
+      font-weight: 500;
+    }
+    .badge {
+      display: inline-block;
+      margin-left: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 400;
+    }
+    .badge.create { color: var(--up) }
+    .badge.release { color: #9aa8bc }
+    .badge.invoke { color: var(--down) }
+    table {
+      width: 100%;
+      margin-top: 4px;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      padding: 9px 12px 9px 0;
+      border-bottom: 1px solid var(--rule);
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 500;
+    }
+    table.mkt th, table.mkt td { padding: 7px 8px 7px 0; font-size: 12px }
+    table.mkt thead tr:first-child th {
+      color: var(--ink);
+      text-align: center;
+      border-bottom: 1px solid rgba(238, 234, 227, 0.28);
+    }
+    table.mkt thead tr:first-child th + th,
+    table.mkt thead tr:last-child th:nth-child(7),
+    table.mkt thead tr:last-child th:nth-child(10),
+    table.mkt thead tr:last-child th:nth-child(13),
+    table.mkt thead tr:last-child th:nth-child(16),
+    table.mkt tbody td:nth-child(7),
+    table.mkt tbody td:nth-child(10),
+    table.mkt tbody td:nth-child(13),
+    table.mkt tbody td:nth-child(16) {
+      border-left: 1px solid var(--rule);
+      padding-left: 12px;
+    }
+    th.num, td.num { text-align: center; font-variant-numeric: tabular-nums }
+    td.num { white-space: nowrap }
+    td.up { color: var(--up) }
+    td.down { color: var(--down) }
+    .empty { color: var(--muted); font-size: 13px; margin: 8px 0 0 }
+    .tbl-scroll { overflow: auto }
+    a { color: var(--ink); text-underline-offset: 3px }
+    a:hover { color: var(--accent) }
+    #report { display: none }
+    .hidden { display: none }
+    .photo-stats { margin: 0 0 8px }
+    .diary-label {
+      margin: 24px 0 6px;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.04em;
+    }
+    .walk-note { color: var(--muted); font-size: 12px; margin: 4px 0 8px }
+    .load-strip {
+      display: none;
+      padding: 18px 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .load-strip:not(.hidden) { display: block }
+    @media (max-width: 720px) {
+      .wrap { width: calc(100% - 32px) }
+      .mast { align-items: flex-start }
+      .bar { flex-direction: column; align-items: stretch }
+      #invokeBtn { margin-left: 0; align-self: flex-end }
+      .section-head h2, .card > h2 { font-size: 22px }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="mast">
+      <div class="brand">
+        <svg class="angle" viewBox="0 0 10 10" aria-hidden="true">
+          <path d="M1.5 8.5 H8.5 V1.5" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        </svg>
+        <h1>Promoter pledges</h1>
+      </div>
+      <ul class="sources">
+        <li><span>Company list</span> NSE / BSE pledged-data · last SHP pledged &gt; 0 only</li>
+        <li><span>Shareholding pattern</span> BSE, current and earlier quarters</li>
+        <li><span>Regulation 31</span> NSE and BSE</li>
+      </ul>
+    </header>
+
+    <section class="hero" id="hero">
+      <div class="bar">
+        <div class="bar-main">
+          <button id="startBtn">Start</button>
+          <div class="field thresh">
+            <label for="minPledge">Min pledge value (Rs cr)</label>
+            <input id="minPledge" type="number" min="0" step="1" placeholder="0 = all" inputmode="decimal">
+          </div>
+          <div class="stats" id="startStatus"></div>
+          <button type="button" id="startXlsBtn" class="hidden">Download Excel</button>
+        </div>
+        <button id="invokeBtn">Invokes</button>
+      </div>
+      <div class="err" id="startErr"></div>
+      <div class="pick" id="pickRow">
+        <div class="field">
+          <label for="filter">Filter</label>
+          <input id="filter" placeholder="Company name" autocomplete="off">
+        </div>
+        <div class="field" style="flex:1.8">
+          <label for="company">Company</label>
+          <select id="company"></select>
+        </div>
+        <div class="field" style="flex:0 0 auto; align-self:end">
+          <button id="loadBtn">Open</button>
+        </div>
+      </div>
+      <div id="invokePanel" class="invoke-panel">
+        <div class="section-head">
+          <h2>Invoke database</h2>
+          <div class="head-actions">
+            <span class="hint" id="invokeHint" style="margin:0"></span>
+            <button type="button" id="invokeXlsBtn">Download Excel</button>
+          </div>
+        </div>
+        <p class="hint" style="margin:0 0 8px">
+          Lender invoked the pledge. This is the event tape, not the SHP pledged list — a name can still appear after pledged shares have gone to zero.
+        </p>
+        <div class="field" style="max-width:320px; margin:16px 0 12px">
+          <label for="invokeFilter">Filter</label>
+          <input id="invokeFilter" placeholder="Company, promoter or lender" autocomplete="off">
+        </div>
+        <div id="invokeTable"></div>
+      </div>
+    </section>
+
+    <div id="loadStatus" class="load-strip hidden"></div>
+    <div id="loadErr" class="err hidden"></div>
+
+    <div id="report">
+      <div class="card">
+        <div class="kicker"><b>01</b>Shareholding pattern</div>
+        <div class="section-head">
+          <h2 id="coName">Latest shareholding pattern</h2>
+          <span class="hint" id="fetchedAt" style="margin:0"></span>
+        </div>
+        <p class="hint" id="sec1hint" style="margin:0 0 6px"></p>
+        <p class="hint" style="margin:0">
+          The shareholding pattern is the BSE quarter-end SHP. Regulation 31 is NSE and BSE for the last 3 years, up to that date.
+        </p>
+        <div class="meta" id="summary"></div>
+        <div class="section-head" style="margin-top:8px">
+          <h2>Market</h2>
+          <span class="hint" id="mktHint" style="margin:0"></span>
+        </div>
+        <div class="tbl-scroll" id="marketTable"></div>
+        <div id="promoters"></div>
+        <div id="unmatched"></div>
+      </div>
+
+      <div class="card">
+        <div class="kicker"><b>02</b>After the last SHP</div>
+        <h2>After the last SHP</h2>
+        <p class="hint" id="sec2hint" style="margin:8px 0 0"></p>
+        <div id="postShp"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+const $ = s => document.querySelector(s);
+let allCompanies = [];
+let companies = [];
+
+const esc = t => (t == null ? "" : String(t)).replace(/[&<>"]/g, c => ({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"
+}[c]));
+
+function num(v, d=2) {
+  if (v == null || v === "") return "—";
+  const n = Number(v);
+  if (!Number.isFinite(n)) return "—";
+  return n.toLocaleString("en-IN", { maximumFractionDigits: d, minimumFractionDigits: 0 });
+}
+function pct(v) {
+  if (v == null || v === "") return "—";
+  const n = Number(v);
+  if (!Number.isFinite(n)) return "—";
+  return n.toLocaleString("en-IN", { maximumFractionDigits: 2, minimumFractionDigits: 2 }) + "%";
+}
+function signed(v) {
+  if (v == null || v === "") return "—";
+  const n = Number(v);
+  if (!Number.isFinite(n)) return "—";
+  const s = n.toLocaleString("en-IN", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+  return (n > 0 ? "+" : "") + s + "%";
+}
+function moveClass(v) {
+  if (v == null || !Number.isFinite(Number(v))) return "num";
+  const n = Number(v);
+  if (n > 0) return "num up";
+  if (n < 0) return "num down";
+  return "num";
+}
+function eventClass(t) {
+  const s = (t || "").toLowerCase();
+  if (s.includes("releas")) return "release";
+  if (s.includes("invoc")) return "invoke";
+  if (s.includes("creat")) return "create";
+  return "";
+}
+function link(u, t) {
+  return u ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(t)}</a>` : "—";
+}
+function metaItem(k, v) {
+  return `<div><div class="k">${esc(k)}</div><div class="v">${v}</div></div>`;
+}
+function holdingPct(p) {
+  if (p.holding_pct != null && Number(p.holding_pct) > 0) return pct(p.holding_pct);
+  if (p.holding_shares) return "<0.01%";
+  return "—";
+}
+
+function fillSelect(list) {
+  const sel = $("#company");
+  sel.innerHTML = list.map(c =>
+    `<option value="${esc(c.name)}">${esc(c.name)}</option>`
+  ).join("");
+}
+
+function stat(n, label) {
+  return `<span class="stat"><b>${Number(n).toLocaleString("en-IN")}</b>${esc(label)}</span>`;
+}
+
+function minPledgeCr() {
+  const n = Number($("#minPledge").value);
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
+function pledgedValueCr(c) {
+  const v = c.pledged_value_cr;
+  if (v == null || v === "") return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+
+function visibleCompanies() {
+  const min = minPledgeCr();
+  const q = ($("#filter").value || "").trim().toLowerCase();
+  return allCompanies.filter(c => {
+    if (min > 0) {
+      const val = pledgedValueCr(c);
+      if (val == null || val < min) return false;
+    }
+    if (q && !c.name.toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+
+let listMeta = null;
+
+function sourceKind(src) {
+  const s = (src || "").toLowerCase();
+  if (s === "json" || s === "csv" || s === "live") return "live";
+  if (s === "cache" || s === "snapshot") return "saved";
+  if (s === "empty") return "none";
+  return s || "none";
+}
+
+function feedNote(meta) {
+  if (!meta) return "";
+  const nse = sourceKind(meta.nse_source);
+  const bse = sourceKind(meta.bse_source);
+  const asof = (meta.nse_asof || "").trim();
+  const saved = asof ? `Saved list (${asof})` : "Saved list";
+  if (nse === "live" && bse === "live") return "Live feed";
+  if (nse === "saved" && bse === "saved") return saved;
+  if (nse === "live" && bse === "saved") return "NSE live · BSE saved list";
+  if (nse === "saved" && bse === "live") return asof ? `NSE saved list (${asof}) · BSE live` : "NSE saved list · BSE live";
+  if (nse === "live" && bse === "none") return "NSE live · BSE unavailable";
+  if (nse === "saved" && bse === "none") return asof ? `NSE saved list (${asof}) · BSE unavailable` : "NSE saved list · BSE unavailable";
+  if (nse === "none" && bse === "live") return "BSE live · NSE unavailable";
+  if (nse === "none" && bse === "saved") return "BSE saved list · NSE unavailable";
+  return `NSE ${nse} · BSE ${bse}`;
+}
+
+function renderListStats(list) {
+  const total = list.length;
+  const nseOnly = list.filter(c => c.list_exchange === "NSE").length;
+  const bseOnly = list.filter(c => c.list_exchange === "BSE").length;
+  const both = list.filter(c => c.list_exchange === "NSE+BSE").length;
+  const min = minPledgeCr();
+  const origin = feedNote(listMeta);
+  const note = min > 0
+    ? `Last-SHP promoter pledge of at least ${min.toLocaleString("en-IN")} cr (pledged shares × last close).`
+    : "";
+  $("#startStatus").innerHTML = `
+    ${origin ? `<p class="stat-note">${esc(origin)}</p>` : ""}
+    <div class="stat-row">
+      ${stat(total, "Total")}
+      ${stat(nseOnly, "NSE only")}
+      ${stat(bseOnly, "BSE only")}
+      ${stat(both, "NSE and BSE")}
+    </div>
+    ${note ? `<p class="stat-note">${esc(note)}</p>` : ""}`;
+}
+
+function applyCompanyList() {
+  companies = visibleCompanies();
+  fillSelect(companies);
+  if (allCompanies.length) renderListStats(companies);
+}
+
+$("#startBtn").addEventListener("click", async () => {
+  $("#startBtn").disabled = true;
+  $("#startErr").textContent = "";
+  $("#invokePanel").classList.remove("show");
+  $("#startXlsBtn").classList.add("hidden");
+  $("#startStatus").innerHTML = `<span class="hint" style="margin:0"><span class="spinner"></span>Loading companies…</span>`;
+  try {
+    const r = await fetch("/api/companies", { method: "POST" });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || "Could not load the list.");
+    allCompanies = d.companies || [];
+    listMeta = d.list_meta || null;
+    $("#pickRow").classList.add("show");
+    $("#startXlsBtn").classList.remove("hidden");
+    document.body.classList.add("ready");
+    applyCompanyList();
+  } catch (e) {
+    $("#startErr").textContent = e.message || String(e);
+    $("#startStatus").innerHTML = "";
+  } finally {
+    $("#startBtn").disabled = false;
+  }
+});
+
+$("#filter").addEventListener("input", applyCompanyList);
+$("#minPledge").addEventListener("input", () => {
+  if (allCompanies.length) applyCompanyList();
+});
+
+$("#loadBtn").addEventListener("click", () => loadCompany());
+$("#company").addEventListener("keydown", e => { if (e.key === "Enter") loadCompany(); });
+
+$("#startXlsBtn").addEventListener("click", async () => {
+  const rows = visibleCompanies();
+  if (!rows.length) {
+    $("#startErr").textContent = "No companies meet that min pledge value.";
+    return;
+  }
+  $("#startErr").textContent = "";
+  $("#startXlsBtn").disabled = true;
+  $("#loadStatus").classList.remove("hidden");
+  $("#loadStatus").innerHTML = `<span class="spinner"></span>Building Excel for ${rows.length.toLocaleString("en-IN")} companies (latest SHP promoters)…`;
+  try {
+    const r = await fetch("/api/companies.xlsx", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        companies: rows,
+        min_pledge_cr: minPledgeCr(),
+      }),
+    });
+    if (!r.ok) {
+      let msg = "Could not build the Excel file.";
+      try {
+        const d = await r.json();
+        if (d.error) msg = d.error;
+      } catch {}
+      throw new Error(msg);
+    }
+    const blob = await r.blob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `promoter-pledges-${new Date().toISOString().slice(0, 10)}.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(a.href);
+    $("#loadStatus").classList.add("hidden");
+  } catch (e) {
+    $("#loadStatus").classList.add("hidden");
+    $("#startErr").textContent = e.message || String(e);
+  } finally {
+    $("#startXlsBtn").disabled = false;
+  }
+});
+
+let invokeEvents = [];
+
+function invokeNeedle(ev) {
+  return [ev.company, ev.nse_symbol, ev.promoter, ev.lender]
+    .map(x => String(x || "").toLowerCase())
+    .join(" ");
+}
+
+function visibleInvokes() {
+  const q = ($("#invokeFilter").value || "").trim().toLowerCase();
+  if (!q) return invokeEvents;
+  return invokeEvents.filter(ev => invokeNeedle(ev).includes(q));
+}
+
+function renderInvokeTable() {
+  const rows = visibleInvokes();
+  const n = invokeEvents.length;
+  const shown = rows.length;
+  const count = shown === n
+    ? `${n.toLocaleString("en-IN")} filing${n === 1 ? "" : "s"}`
+    : `${shown.toLocaleString("en-IN")} of ${n.toLocaleString("en-IN")}`;
+  $("#invokeHint").textContent = count;
+  if (!rows.length) {
+    $("#invokeTable").innerHTML = `<p class="empty">No invocation filings in this window.</p>`;
+    return;
+  }
+  const body = rows.map((ev, i) => {
+    const file = ev.attachment ? link(ev.attachment, "Filing") : "—";
+    const co = `<button type="button" class="co-link" data-i="${i}">${esc(ev.company || "—")}</button>`;
+    const tick = ev.nse_symbol ? `<div class="hint" style="margin:4px 0 0">${esc(ev.nse_symbol)}</div>` : "";
+    return `<tr>
+      <td>${esc(ev.event_date_label || ev.broadcast_label || "—")}</td>
+      <td>${co}${tick}</td>
+      <td>${esc(ev.promoter || "—")}</td>
+      <td>${esc(ev.lender || "—")}${ev.encumbrance_type ? `<div class="hint" style="margin:4px 0 0">${esc(ev.encumbrance_type)}</div>` : ""}</td>
+      <td class="num">${num(ev.event_shares, 0)}</td>
+      <td class="num">${pct(ev.event_pct_equity)}</td>
+      <td class="num">${num(ev.pre_event_encumbered_shares, 0)}</td>
+      <td class="num">${num(ev.post_event_encumbered_shares, 0)}</td>
+      <td>${file}</td>
+    </tr>`;
+  }).join("");
+  $("#invokeTable").innerHTML = `<div class="tbl-scroll"><table>
+    <thead><tr>
+      <th>Date</th><th>Company</th><th>Promoter</th><th>Lender</th>
+      <th class="num">Invoked</th><th class="num">% equity</th>
+      <th class="num">Pledged before</th><th class="num">Pledged after</th><th></th>
+    </tr></thead>
+    <tbody>${body}</tbody>
+  </table></div>`;
+  $("#invokeTable").querySelectorAll("button.co-link").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const ev = rows[Number(btn.dataset.i)];
+      if (!ev) return;
+      loadCompany({
+        name: ev.company,
+        nse_symbol: ev.nse_symbol || "",
+      });
+    });
+  });
+}
+
+$("#invokeBtn").addEventListener("click", async () => {
+  $("#invokeBtn").disabled = true;
+  $("#startErr").textContent = "";
+  $("#pickRow").classList.remove("show");
+  $("#startXlsBtn").classList.add("hidden");
+  $("#startStatus").innerHTML = `<span class="hint" style="margin:0"><span class="spinner"></span>Loading invocations…</span>`;
+  try {
+    const r = await fetch("/api/invokes", { method: "POST" });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || "Could not load invocations.");
+    invokeEvents = d.events || [];
+    const note = (d.meta && d.meta.note) || "";
+    $("#startStatus").innerHTML = note
+      ? `<p class="stat-note">${esc(note)}</p>`
+      : "";
+    $("#invokePanel").classList.add("show");
+    renderInvokeTable();
+  } catch (e) {
+    $("#startErr").textContent = e.message || String(e);
+    $("#startStatus").innerHTML = "";
+  } finally {
+    $("#invokeBtn").disabled = false;
+  }
+});
+
+$("#invokeFilter").addEventListener("input", renderInvokeTable);
+
+$("#invokeXlsBtn").addEventListener("click", async () => {
+  const rows = visibleInvokes();
+  if (!rows.length) {
+    $("#startErr").textContent = "No invocation filings to download.";
+    return;
+  }
+  $("#startErr").textContent = "";
+  $("#invokeXlsBtn").disabled = true;
+  try {
+    const r = await fetch("/api/invokes.xlsx", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ events: rows }),
+    });
+    if (!r.ok) {
+      let msg = "Could not build the Excel file.";
+      try {
+        const d = await r.json();
+        if (d.error) msg = d.error;
+      } catch {}
+      throw new Error(msg);
+    }
+    const blob = await r.blob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `promoter-invokes-${new Date().toISOString().slice(0, 10)}.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(a.href);
+  } catch (e) {
+    $("#startErr").textContent = e.message || String(e);
+  } finally {
+    $("#invokeXlsBtn").disabled = false;
+  }
+});
+
+async function loadCompany(override) {
+  const name = (override && override.name) || $("#company").value;
+  if (!name) return;
+  const listed = companies.find(c => c.name === name) || {};
+  const meta = Object.assign({}, listed, override || {});
+  $("#loadErr").classList.add("hidden");
+  $("#report").style.display = "none";
+  $("#loadStatus").classList.remove("hidden");
+  $("#loadStatus").innerHTML = `<span class="spinner"></span>Loading ${esc(name)}…`;
+  $("#loadBtn").disabled = true;
+  try {
+    const r = await fetch("/api/company", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        symbol: meta.nse_symbol || "",
+        scripcode: meta.bse_scripcode || "",
+        isin: meta.isin || "",
+      })
+    });
+    const text = await r.text();
+    let d = {};
+    try {
+      d = text ? JSON.parse(text) : {};
+    } catch {
+      throw new Error(
+        r.ok
+          ? "Server returned a page instead of company data. Hard-refresh and try Open again."
+          : `Lookup failed (HTTP ${r.status}).`
+      );
+    }
+    if (!r.ok) throw new Error(d.error || "Lookup failed.");
+    render(d);
+    $("#loadStatus").classList.add("hidden");
+    $("#report").style.display = "block";
+    $("#report").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (e) {
+    $("#loadStatus").classList.add("hidden");
+    $("#loadErr").classList.remove("hidden");
+    $("#loadErr").textContent = e.message || String(e);
+  } finally {
+    $("#loadBtn").disabled = false;
+  }
+}
+
+function walkTable(rows) {
+  rows = (rows || []).filter(pt => pt.present);
+  if (!rows.length) return "";
+  const body = rows.map(pt => {
+    const delta = pt.delta_shares == null ? "—" : (Number(pt.delta_shares) > 0 ? "+" : "") + num(pt.delta_shares, 0);
+    return `<tr>
+      <td>${esc(pt.quarter || pt.quarter_end_label || "—")}</td>
+      <td class="num">${num(pt.pledged_shares, 0)}</td>
+      <td class="num">${delta}</td>
+      <td class="num">${pct(pt.pledged_pct_of_holding)}</td>
+      <td class="num">${num(pt.holding_shares, 0)}</td>
+    </tr>`;
+  }).join("");
+  return `<div class="tbl-scroll"><table>
+    <thead><tr>
+      <th>Quarter</th><th class="num">Pledged</th><th class="num">Δ</th><th class="num">% of holding</th><th class="num">Holding</th>
+    </tr></thead>
+    <tbody>${body}</tbody>
+  </table></div>`;
+}
+
+function eventTable(rows) {
+  if (!rows || !rows.length) return `<p class="empty">None.</p>`;
+  const body = rows.map(ev => {
+    const badge = `<span class="badge ${eventClass(ev.event_type)}">${esc(ev.event_type || "—")}</span>`;
+    const file = ev.attachment ? link(ev.attachment, "Filing") : "—";
+    const src = ev.source ? `<div class="hint" style="margin:4px 0 0">${esc(ev.source)}</div>` : "";
+    return `<tr>
+      <td>${esc(ev.event_date_label || ev.broadcast_label || "—")}</td>
+      <td>${badge}${ev.encumbrance_type ? `<div class="hint" style="margin:4px 0 0">${esc(ev.encumbrance_type)}</div>` : ""}</td>
+      <td>${esc(ev.promoter || "—")}</td>
+      <td>${esc(ev.lender || "—")}</td>
+      <td class="num">${num(ev.event_shares, 0)}</td>
+      <td class="num">${pct(ev.event_pct_equity)}</td>
+      <td class="num">${num(ev.post_event_encumbered_shares, 0)}</td>
+      <td>${file}${src}</td>
+    </tr>`;
+  }).join("");
+  return `<div class="tbl-scroll"><table>
+    <thead><tr>
+      <th>Date</th><th>Type</th><th>Promoter</th><th>Lender</th>
+      <th class="num">Shares</th><th class="num">% equity</th><th class="num">Pledged after</th><th></th>
+    </tr></thead>
+    <tbody>${body}</tbody>
+  </table></div>`;
+}
+
+function render(d) {
+  $("#coName").textContent = d.company || "Shareholding pattern";
+  $("#fetchedAt").textContent = d.fetched_at || "";
+  $("#sec1hint").textContent = [d.quarter, d.shp_filed_label ? "filed " + d.shp_filed_label : null]
+    .filter(Boolean).join(" · ");
+  const mcap = d.market_cap_cr == null ? "—" : num(d.market_cap_cr) + " cr";
+  $("#summary").innerHTML = [
+    metaItem("Market cap", esc(mcap)),
+    metaItem("Promoter holding", pct(d.promoter_holding_pct)),
+    metaItem("Pledged (SHP)", d.shp_pledged_pct_of_promoter == null
+      ? "—"
+      : `${pct(d.shp_pledged_pct_of_promoter)} · ${num(d.shp_pledged_shares, 0)} sh`),
+    metaItem("NSE / BSE", `${esc(d.nse_ticker || "—")} / ${esc(d.bse_code || "—")}`),
+    metaItem("Promoter SHP", link(d.promoter_shp_url, "Link")),
+    metaItem("Public SHP", link(d.public_shp_url, "Link")),
+  ].join("");
+
+  const prom = d.promoters || [];
+  if (!prom.length) {
+    $("#promoters").innerHTML = `<p class="empty">No pledged promoter in this SHP.</p>`;
+  } else {
+    $("#promoters").innerHTML = prom.map(p => {
+      const walk = walkTable(p.shp_walk);
+      const walkNote = p.shp_walk_note ? `<p class="walk-note">${esc(p.shp_walk_note)}</p>` : "";
+      const walkBlock = (walk || walkNote)
+        ? `<div class="diary-label">Earlier shareholding patterns</div>${walkNote}${walk}`
+        : `<div class="diary-label">Earlier shareholding patterns</div><p class="empty">None.</p>`;
+      const hist = (p.history && p.history.length)
+        ? eventTable(p.history)
+        : `<p class="empty">None.</p>`;
+      return `<div class="promoter">
+        <h3>${esc(p.name)} <span class="badge">${esc(p.category || "")}</span></h3>
+        <div class="photo-stats tbl-scroll"><table>
+          <thead><tr>
+            <th class="num">% of company</th><th class="num">Holding</th><th class="num">Pledged</th>
+            <th class="num">% of holding</th><th class="num">Value</th>
+          </tr></thead>
+          <tbody><tr>
+            <td class="num">${holdingPct(p)}</td>
+            <td class="num">${num(p.holding_shares, 0)}</td>
+            <td class="num">${num(p.pledged_shares, 0)}</td>
+            <td class="num">${pct(p.pledged_pct_of_holding)}</td>
+            <td class="num">${p.pledged_value_cr == null ? "—" : num(p.pledged_value_cr) + " cr"}</td>
+          </tr></tbody>
+        </table></div>
+        ${walkBlock}
+        <div class="diary-label">Regulation 31 · last 3 years${d.quarter_end_label ? " · up to " + esc(d.quarter_end_label) : ""}</div>
+        ${hist}
+      </div>`;
+    }).join("");
+  }
+
+  const um = d.unmatched_history || [];
+  $("#unmatched").innerHTML = um.length
+    ? `<div class="promoter"><h3>Other filings</h3>${eventTable(um)}</div>`
+    : "";
+
+  const laterPromoters = prom.filter(p => p.later && p.later.length);
+  const postUnmatched = (d.post_shp_events || []).filter(ev => !ev.matched_promoter);
+  $("#sec2hint").textContent = d.quarter_end_label
+    ? `NSE + BSE Reg 31 after ${d.quarter_end_label} · last 3 years`
+    : "NSE + BSE Reg 31 · last 3 years";
+
+  let sec2 = "";
+  laterPromoters.forEach(p => {
+    sec2 += `<div class="promoter"><h3>${esc(p.name)}</h3>${eventTable(p.later)}</div>`;
+  });
+  if (postUnmatched.length) {
+    sec2 += `<div class="promoter"><h3>Other filings</h3>${eventTable(postUnmatched)}</div>`;
+  }
+  $("#postShp").innerHTML = sec2 || `<p class="empty">None.</p>`;
+
+  const m = d.market || {};
+  $("#mktHint").textContent = [m.quote_source, m.quote_time, m.as_of_label ? "as of " + m.as_of_label : null]
+    .filter(Boolean).join(" · ");
+  const cell = (v, cls) => `<td class="${cls || "num"}">${v}</td>`;
+  const hasQuote = m.cmp != null || m.return_1d_pct != null || m.adtv_1m_cr != null;
+  $("#marketTable").innerHTML = hasQuote ? `<table class="mkt">
+    <thead>
+      <tr>
+        <th colspan="6">Live</th>
+        <th colspan="3">Return</th>
+        <th colspan="3">ADTV</th>
+        <th colspan="3">VWAP</th>
+        <th colspan="3">Delivery</th>
+      </tr>
+      <tr>
+        <th class="num">CMP</th><th class="num">Open</th><th class="num">Prev close</th><th class="num">Intraday</th><th class="num">Daily</th><th class="num">Volume</th>
+        <th class="num">1D</th><th class="num">1W</th><th class="num">1M</th>
+        <th class="num">1D</th><th class="num">1W</th><th class="num">1M</th>
+        <th class="num">1D</th><th class="num">1W</th><th class="num">1M</th>
+        <th class="num">1D</th><th class="num">1W</th><th class="num">1M</th>
+      </tr>
+    </thead>
+    <tbody><tr>
+      ${cell(m.cmp == null ? "—" : num(m.cmp))}
+      ${cell(m.open == null ? "—" : num(m.open))}
+      ${cell(m.previous_close == null ? "—" : num(m.previous_close))}
+      ${cell(signed(m.intraday_return_pct), moveClass(m.intraday_return_pct))}
+      ${cell(signed(m.daily_return_pct), moveClass(m.daily_return_pct))}
+      ${cell(m.live_volume == null ? "—" : num(m.live_volume, 0))}
+      ${cell(signed(m.return_1d_pct), moveClass(m.return_1d_pct))}
+      ${cell(signed(m.return_1w_pct), moveClass(m.return_1w_pct))}
+      ${cell(signed(m.return_1m_pct), moveClass(m.return_1m_pct))}
+      ${cell(m.adtv_1d_cr == null ? "—" : num(m.adtv_1d_cr))}
+      ${cell(m.adtv_1w_cr == null ? "—" : num(m.adtv_1w_cr))}
+      ${cell(m.adtv_1m_cr == null ? "—" : num(m.adtv_1m_cr))}
+      ${cell(m.vwap_1d == null ? "—" : num(m.vwap_1d))}
+      ${cell(m.vwap_1w == null ? "—" : num(m.vwap_1w))}
+      ${cell(m.vwap_1m == null ? "—" : num(m.vwap_1m))}
+      ${cell(pct(m.delivery_1d_pct))}
+      ${cell(pct(m.delivery_1w_pct))}
+      ${cell(pct(m.delivery_1m_pct))}
+    </tr></tbody>
+  </table>
+  <p class="hint" style="margin:6px 0 0">ADTV in Rs cr. Delivery is NSE deliverable qty.</p>`
+    : `<p class="empty">No market data for this name.</p>`;
+}
+</script>
+</body>
+</html>
